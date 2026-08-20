@@ -1,0 +1,13 @@
+.env
+tailscale-state/
+/shellcrash/
+/dhcp.csv
+/cache.db
+/GeoIP.dat
+/GeoSite.dat
+/proxies/
+/proxy_provider/
+/rules/
+/ruleset/
+*.log
+.DS_Store

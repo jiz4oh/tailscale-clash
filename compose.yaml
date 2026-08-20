@@ -1,0 +1,38 @@
+services:
+  shellcrash:
+    image: juewuy/shellcrash:latest
+    container_name: shellcrash
+    restart: unless-stopped
+    cap_add:
+      - SYS_ADMIN
+      - NET_ADMIN
+      - NET_RAW
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    sysctls:
+      - net.ipv4.ip_forward=1
+      - net.ipv6.conf.all.forwarding=1
+      - net.ipv6.conf.default.forwarding=1
+    volumes:
+      - ./shellcrash:/etc/ShellCrash
+
+  tailscale:
+    image: tailscale/tailscale:${TS_IMAGE_TAG:-latest}
+    container_name: shellcrash-tailscale
+    restart: unless-stopped
+    network_mode: service:shellcrash
+    cap_add:
+      - NET_ADMIN
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    environment:
+      TS_AUTHKEY: ${TS_AUTHKEY:?set TS_AUTHKEY in .env}
+      TS_STATE_DIR: /var/lib/tailscale
+      TS_USERSPACE: "false"
+      TS_HOSTNAME: ${TS_HOSTNAME:-shellcrash}
+      TS_ROUTES: ${TS_ROUTES:-28.0.0.0/8}
+      TS_EXTRA_ARGS: ""
+    volumes:
+      - ./tailscale-state:/var/lib/tailscale
+    depends_on:
+      - shellcrash
